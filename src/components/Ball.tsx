@@ -37,9 +37,9 @@ const Ball = forwardRef<BallHandle, BallProps>(
       if (!ballRef.current) return;
 
       // Movement speed
-      const speed = 15;
-      const friction = 0.92;
-      const maxSpeed = 20;
+      const speed = 25;
+      const maxSpeed = 35;
+      const friction = 0.95;
 
       let moved = false;
 
@@ -49,8 +49,8 @@ const Ball = forwardRef<BallHandle, BallProps>(
         // beta: forward/back tilt (-180 to 180 degrees)
 
         // Normalize and apply movement
-        const sensitivity = 0.3;
-        const deadzone = 5; // degrees
+        const sensitivity = 0.7;
+        const deadzone = 2; // degrees
 
         // Left/Right movement from gamma
         if (Math.abs(orientation.gamma) > deadzone) {
@@ -64,10 +64,9 @@ const Ball = forwardRef<BallHandle, BallProps>(
 
         // Forward/Back movement from beta
         if (Math.abs(orientation.beta) > deadzone) {
-          // Invert beta so tilting forward moves forward
           const normalizedBeta = Math.max(
             -1,
-            Math.min(1, -orientation.beta / 45)
+            Math.min(1, orientation.beta / 45)
           );
           velocity.current.z += normalizedBeta * speed * sensitivity * delta;
           moved = true;
