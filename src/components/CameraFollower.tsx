@@ -22,7 +22,7 @@ const CameraFollower: React.FC<CameraFollowerProps> = ({
     const ballPosition = ballRef.current.getPosition();
 
     // Set camera to follow ball from behind and above
-    const offset = new Vector3(0, 5, 8);
+    const offset = new Vector3(0, 5, 3);
     targetPosition.current.copy(ballPosition).add(offset);
 
     // Look at the ball
