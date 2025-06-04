@@ -44,35 +44,42 @@ const Ball = forwardRef<BallHandle, BallProps>(
       let moved = false;
 
       if (gyroEnabled) {
-        // Use gyroscope for movement
-        // gamma controls left/right movement (-90 to 90 degrees)
-        // beta controls forward/backward movement (-180 to 180 degrees)
+        // Use gyroscope for movement - based on working watertoy example
+        // gamma: left/right tilt (-90 to 90 degrees)
+        // beta: forward/back tilt (-180 to 180 degrees)
 
-        // Normalize gamma (-90 to 90) to (-1 to 1)
-        const leftRight = Math.max(-1, Math.min(1, orientation.gamma / 20));
+        // Normalize and apply movement
+        const sensitivity = 0.3;
+        const deadzone = 5; // degrees
 
-        // Normalize beta for forward/backward (use a smaller range for better control)
-        // When phone is tilted forward (negative beta), move forward (negative z)
-        const forwardBack = Math.max(-1, Math.min(1, orientation.beta / 15));
-
-        if (Math.abs(leftRight) > 0.15) {
-          velocity.current.x += leftRight * speed * delta;
+        // Left/Right movement from gamma
+        if (Math.abs(orientation.gamma) > deadzone) {
+          const normalizedGamma = Math.max(
+            -1,
+            Math.min(1, orientation.gamma / 45)
+          );
+          velocity.current.x += normalizedGamma * speed * sensitivity * delta;
           moved = true;
         }
 
-        if (Math.abs(forwardBack) > 0.15) {
-          velocity.current.z += forwardBack * speed * delta;
+        // Forward/Back movement from beta
+        if (Math.abs(orientation.beta) > deadzone) {
+          // Invert beta so tilting forward moves forward
+          const normalizedBeta = Math.max(
+            -1,
+            Math.min(1, -orientation.beta / 45)
+          );
+          velocity.current.z += normalizedBeta * speed * sensitivity * delta;
           moved = true;
         }
 
-        // Log gyro values for debugging
-        if (Math.abs(orientation.gamma) > 1 || Math.abs(orientation.beta) > 1) {
-          console.log("Gyro values:", {
+        // Log values when there's significant movement
+        if (moved) {
+          console.log("Gyro movement:", {
             gamma: orientation.gamma.toFixed(1),
             beta: orientation.beta.toFixed(1),
-            leftRight: leftRight.toFixed(2),
-            forwardBack: forwardBack.toFixed(2),
-            moving: moved,
+            velX: velocity.current.x.toFixed(3),
+            velZ: velocity.current.z.toFixed(3),
           });
         }
       }
