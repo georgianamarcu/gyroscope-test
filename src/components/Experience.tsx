@@ -19,7 +19,7 @@ interface DeviceOrientationType {
 
 const gyroAvailable =
   typeof DeviceOrientationEvent !== "undefined" &&
-  // @ts-expect-error I will fix this..one day
+  //@ts-expect-error I will fix this..one day
   typeof DeviceOrientationEvent.requestPermission === "function";
 
 const Experience: React.FC = () => {
@@ -61,10 +61,10 @@ const Experience: React.FC = () => {
     try {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
-        // @ts-expect-error I will fix this..one day
+        //@ts-expect-error I will fix this..one day
         typeof DeviceOrientationEvent.requestPermission === "function"
       ) {
-        // @ts-expect-error I will fix this..one day
+        //@ts-expect-error I will fix this..one day
         const response = await DeviceOrientationEvent.requestPermission();
         if (response === "granted") {
           window.addEventListener(
@@ -119,7 +119,6 @@ const Experience: React.FC = () => {
             onDecline={() => setDpr(1)}
           />
 
-          {/* Your GyroCameraController integrated here */}
           <group ref={cameraGroupRef}>
             <perspectiveCamera />
           </group>
@@ -135,10 +134,8 @@ const Experience: React.FC = () => {
             <Ball
               gyroEnabled={gyroEnabled && !useGyroCamera}
               orientation={deviceOrientation.current}
-              keyControls={{
-                leftUp: leftUp.current,
-                rightUp: rightUp.current,
-              }}
+              leftUpRef={leftUp}
+              rightUpRef={rightUp}
             />
 
             <Ground />
@@ -185,7 +182,6 @@ const Experience: React.FC = () => {
           <div>
             <p>⌨️ Keyboard Controls:</p>
             <p>F - Move Left | J - Move Right</p>
-            <p>L - Toggle Debug Panel</p>
             <p>C - Toggle Camera Mode</p>
           </div>
         )}
