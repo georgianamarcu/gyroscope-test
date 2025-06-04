@@ -11,6 +11,7 @@ interface BallProps {
   };
   leftUpRef: MutableRefObject<boolean>;
   rightUpRef: MutableRefObject<boolean>;
+  forwardRef: MutableRefObject<boolean>;
 }
 
 const Ball: React.FC<BallProps> = ({
@@ -18,6 +19,7 @@ const Ball: React.FC<BallProps> = ({
   orientation,
   leftUpRef,
   rightUpRef,
+  forwardRef,
 }) => {
   const ballRef = useRef<Mesh>(null);
   const velocity = useRef(new Vector3(0, 0, 0));
@@ -73,6 +75,11 @@ const Ball: React.FC<BallProps> = ({
       velocity.current.x += speed * delta;
       moved = true;
       console.log("Moving right via keyboard");
+    }
+    if (forwardRef.current) {
+      velocity.current.z -= speed * delta;
+      moved = true;
+      console.log("Moving forward via keyboard");
     }
 
     // Apply friction
