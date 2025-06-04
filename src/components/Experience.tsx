@@ -17,9 +17,16 @@ const Experience: React.FC = () => {
   const [gyroEnabled, setGyroEnabled] = useState<boolean>(false);
   const [useGyroCamera, setUseGyroCamera] = useState<boolean>(false);
   const [, setGyroPermission] = useState<string>("prompt");
+  const [shakeDetected, setShakeDetected] = useState<boolean>(false);
 
   const cameraGroupRef = useRef<Group>(null);
   const ballRef = useRef<BallHandle>(null);
+
+  const prevOrientation = useRef({
+    alpha: 0,
+    beta: 0,
+    gamma: 0,
+  });
 
   // Store orientation values in state for real-time updates
   const [orientation, setOrientation] = useState({
@@ -33,11 +40,57 @@ const Experience: React.FC = () => {
   const forward = useRef<boolean>(false);
 
   const handleOrientationChange = (event: DeviceOrientationEvent) => {
+    const { alpha, beta, gamma } = event;
+
+    // Set current orientation state
     setOrientation({
-      alpha: event.alpha || 0,
-      beta: event.beta || 0,
-      gamma: event.gamma || 0,
+      alpha: alpha || 0,
+      beta: beta || 0,
+      gamma: gamma || 0,
     });
+
+    // Check for a shake event
+    if (
+      //@ts-expect-error I will fix
+      Math.abs(alpha - prevOrientation.current.alpha) > 30 ||
+      //@ts-expect-error I will fix this also
+      Math.abs(beta - prevOrientation.current.beta) > 30 ||
+      //@ts-expect-error I will fix suure
+      Math.abs(gamma - prevOrientation.current.gamma) > 30
+    ) {
+      // Shake detected: Set shakeDetected to true
+      setShakeDetected(true);
+
+      // Reset shake detection after a short delay
+      setTimeout(() => {
+        setShakeDetected(false);
+      }, 500); // Reset shake flag after 500ms
+    }
+
+    // Store current orientation for the next frame comparison
+    //@ts-expect-error I will fix, ugh
+    prevOrientation.current = { alpha, beta, gamma };
+  };
+
+  const handleDeviceMotion = (event: DeviceMotionEvent) => {
+    const acceleration = event.acceleration;
+    if (acceleration) {
+      const totalAcceleration = Math.sqrt(
+        //@ts-expect-error I will fix this also, one day
+        Math.pow(acceleration.x, 2) +
+          //@ts-expect-error I will fix this also, one day..later
+          Math.pow(acceleration.y, 2) +
+          //@ts-expect-error I will fix this also, one day..later than the other one
+          Math.pow(acceleration.z, 2)
+      );
+
+      // If total acceleration exceeds threshold, trigger shake detection
+      if (totalAcceleration > 20) {
+        // Adjust threshold based on testing
+        setShakeDetected(true);
+        console.log("Shake detected!");
+      }
+    }
   };
 
   const requestGyroPermission = async (): Promise<void> => {
@@ -58,6 +111,7 @@ const Experience: React.FC = () => {
             handleOrientationChange,
             true
           );
+          window.addEventListener("devicemotion", handleDeviceMotion);
           setGyroEnabled(true);
           console.log("Gyroscope permission granted and enabled");
         } else {
@@ -73,6 +127,7 @@ const Experience: React.FC = () => {
           handleOrientationChange,
           true
         );
+        window.addEventListener("devicemotion", handleDeviceMotion);
         setGyroEnabled(true);
         setGyroPermission("granted");
         console.log("Gyroscope enabled (no permission required)");
@@ -120,6 +175,7 @@ const Experience: React.FC = () => {
         handleOrientationChange,
         true
       );
+      window.removeEventListener("devicemotion", handleDeviceMotion);
     };
   }, []);
 
@@ -155,6 +211,7 @@ const Experience: React.FC = () => {
               leftUpRef={leftUp}
               rightUpRef={rightUp}
               forwardRef={forward}
+              shakeDetected={shakeDetected}
             />
 
             <Ground />
