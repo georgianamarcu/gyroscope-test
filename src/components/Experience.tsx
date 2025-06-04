@@ -132,10 +132,8 @@ const Experience: React.FC = () => {
             onDecline={() => setDpr(1)}
           />
 
-          {/* Camera follower for ball mode */}
           <CameraFollower ballRef={ballRef} enabled={!useGyroCamera} />
 
-          {/* Your GyroCameraController integrated here */}
           <group ref={cameraGroupRef}>
             <perspectiveCamera />
           </group>
@@ -164,12 +162,10 @@ const Experience: React.FC = () => {
         </Canvas>
       </CanvasContainer>
 
-      {/* Gyroscope Enable Button */}
       {!gyroEnabled && (
         <GyroButton onClick={enableGyro}>Enable Gyroscope Control</GyroButton>
       )}
 
-      {/* Debug Info */}
       {gyroEnabled && (
         <DebugInfo>
           <p>
@@ -179,7 +175,6 @@ const Experience: React.FC = () => {
         </DebugInfo>
       )}
 
-      {/* Mode Toggle Button */}
       {gyroEnabled && (
         <ModeButton onClick={() => setUseGyroCamera((prev) => !prev)}>
           {useGyroCamera
@@ -188,7 +183,6 @@ const Experience: React.FC = () => {
         </ModeButton>
       )}
 
-      {/* Controls Info */}
       <ControlsInfo>
         {gyroEnabled ? (
           <div>
