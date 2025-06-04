@@ -101,7 +101,6 @@ const GyroCameraController: React.FC<GyroCameraControllerProps> = ({
 
       cameraGroup.current.position.lerp(_targetPosition, 0.1);
 
-      // Safely access the first child if it exists and has a lookAt method
       const firstChild = cameraGroup.current.children[0];
       if (
         firstChild &&

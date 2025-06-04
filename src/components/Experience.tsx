@@ -7,16 +7,9 @@ import { PerformanceMonitor } from "@react-three/drei";
 import { Group } from "three";
 import Lights from "./Lights";
 import Ground from "./Grid";
-// import Shadows from "./Shadows";
 import GyroCameraController from "./GyroCamera";
 import Ball, { type BallHandle } from "./Ball";
 import CameraFollower from "./CameraFollower";
-
-// interface DeviceOrientationType {
-//   alpha: number;
-//   beta: number;
-//   gamma: number;
-// }
 
 const Experience: React.FC = () => {
   const [dpr, setDpr] = useState<number>(1.5);
@@ -50,6 +43,7 @@ const Experience: React.FC = () => {
   const requestGyroPermission = async (): Promise<void> => {
     try {
       // Check if we're on iOS and need permission
+      // Yeah, I know any is lazy, I'll eventually type it properly
       if (
         typeof (DeviceOrientationEvent as any).requestPermission === "function"
       ) {
@@ -164,7 +158,6 @@ const Experience: React.FC = () => {
             />
 
             <Ground />
-            {/* <Shadows /> */}
           </group>
 
           {/* <Perf position="top-left" /> */}

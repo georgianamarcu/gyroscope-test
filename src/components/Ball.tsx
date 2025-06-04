@@ -37,9 +37,9 @@ const Ball = forwardRef<BallHandle, BallProps>(
       if (!ballRef.current) return;
 
       // Movement speed
-      const speed = 8;
+      const speed = 15;
       const friction = 0.92;
-      const maxSpeed = 4;
+      const maxSpeed = 20;
 
       let moved = false;
 
@@ -73,7 +73,6 @@ const Ball = forwardRef<BallHandle, BallProps>(
           moved = true;
         }
 
-        // Log values when there's significant movement
         if (moved) {
           console.log("Gyro movement:", {
             gamma: orientation.gamma.toFixed(1),
@@ -84,7 +83,6 @@ const Ball = forwardRef<BallHandle, BallProps>(
         }
       }
 
-      // Always check keyboard controls (for debugging and fallback)
       if (leftUpRef.current) {
         velocity.current.x -= speed * delta;
         moved = true;
@@ -114,16 +112,16 @@ const Ball = forwardRef<BallHandle, BallProps>(
         velocity.current.clone().multiplyScalar(delta)
       );
 
-      // Keep ball within bounds
-      const bounds = 8;
-      ballRef.current.position.x = Math.max(
-        -bounds,
-        Math.min(bounds, ballRef.current.position.x)
-      );
-      ballRef.current.position.z = Math.max(
-        -bounds,
-        Math.min(bounds, ballRef.current.position.z)
-      );
+      // Keep ball within bounds, maybe if we make some pre-set game level
+      //   const bounds = 8;
+      //   ballRef.current.position.x = Math.max(
+      //     -bounds,
+      //     Math.min(bounds, ballRef.current.position.x)
+      //   );
+      //   ballRef.current.position.z = Math.max(
+      //     -bounds,
+      //     Math.min(bounds, ballRef.current.position.z)
+      //   );
       ballRef.current.position.y = 0.5; // Keep ball above ground
 
       if (moved && velocity.current.length() > 0.01) {
