@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // Allows default imports from modules with no default export
+    "esModuleInterop": true,
+
+    // Skip type checking of declaration files
+    "skipLibCheck": true,
+
+    // Specify ECMAScript target version
+    "target": "es2022",
+
+    // Allow JavaScript files to be compiled
+    "allowJs": true,
+
+    // Include modules imported with .json extension
+    "resolveJsonModule": true,
+
+    // Force TypeScript to treat all files as modules
+    "moduleDetection": "force",
+
+    // Ensure that each file can be safely transpiled without relying on other imports
+    "isolatedModules": true,
+
+    // Ensure that you cannot use `import` statements in TypeScript code unless you use `import type`
+    "verbatimModuleSyntax": true,
+
+    // Enable all strict type checking options
+    "strict": true,
+
+    // Add 'undefined' to index signature results
+    "noUncheckedIndexedAccess": true,
+
+    // Ensure overriding members in derived classes are marked with an override modifier
+    "noImplicitOverride": true,
+
+    // Preserve import statements in module output
+    "module": "preserve",
+
+    // Do not emit outputs
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
