@@ -12,26 +12,24 @@ import GyroCameraController from "./GyroCamera";
 import Ball, { type BallHandle } from "./Ball";
 import CameraFollower from "./CameraFollower";
 
-interface DeviceOrientationType {
-  alpha: number;
-  beta: number;
-  gamma: number;
-}
-
-const gyroAvailable =
-  typeof DeviceOrientationEvent !== "undefined" &&
-  //@ts-expect-error I wil fix this...never:))
-  typeof DeviceOrientationEvent.requestPermission === "function";
+// interface DeviceOrientationType {
+//   alpha: number;
+//   beta: number;
+//   gamma: number;
+// }
 
 const Experience: React.FC = () => {
   const [dpr, setDpr] = useState<number>(1.5);
   const [hideLeva, setHideLeva] = useState<boolean>(true);
   const [gyroEnabled, setGyroEnabled] = useState<boolean>(false);
   const [useGyroCamera, setUseGyroCamera] = useState<boolean>(false);
+  const [, setGyroPermission] = useState<string>("prompt");
 
   const cameraGroupRef = useRef<Group>(null);
   const ballRef = useRef<BallHandle>(null);
-  const deviceOrientation = useRef<DeviceOrientationType>({
+
+  // Store orientation values in state for real-time updates
+  const [orientation, setOrientation] = useState({
     alpha: 0,
     beta: 0,
     gamma: 0,
@@ -41,12 +39,54 @@ const Experience: React.FC = () => {
   const rightUp = useRef<boolean>(false);
   const forward = useRef<boolean>(false);
 
-  const handleOrientationForGravity = (event: DeviceOrientationEvent) => {
-    deviceOrientation.current = {
+  const handleOrientationChange = (event: DeviceOrientationEvent) => {
+    setOrientation({
       alpha: event.alpha || 0,
       beta: event.beta || 0,
       gamma: event.gamma || 0,
-    };
+    });
+  };
+
+  const requestGyroPermission = async (): Promise<void> => {
+    try {
+      // Check if we're on iOS and need permission
+      if (
+        typeof (DeviceOrientationEvent as any).requestPermission === "function"
+      ) {
+        const permission = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
+        setGyroPermission(permission);
+
+        if (permission === "granted") {
+          window.addEventListener(
+            "deviceorientation",
+            handleOrientationChange,
+            true
+          );
+          setGyroEnabled(true);
+          console.log("Gyroscope permission granted and enabled");
+        } else {
+          console.log("Gyroscope permission denied");
+          alert(
+            "Gyroscope permission was denied. Please enable it in your browser settings."
+          );
+        }
+      } else {
+        // For Android or browsers that don't require permission
+        window.addEventListener(
+          "deviceorientation",
+          handleOrientationChange,
+          true
+        );
+        setGyroEnabled(true);
+        setGyroPermission("granted");
+        console.log("Gyroscope enabled (no permission required)");
+      }
+    } catch (error) {
+      console.error("Error requesting gyroscope permission:", error);
+      alert("Error requesting gyroscope permission. Please try again.");
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -63,34 +103,7 @@ const Experience: React.FC = () => {
   };
 
   const enableGyro = async (): Promise<void> => {
-    try {
-      if (
-        typeof DeviceOrientationEvent !== "undefined" &&
-        //@ts-expect-error I wil fix this...never:))
-        typeof DeviceOrientationEvent.requestPermission === "function"
-      ) {
-        //@ts-expect-error I wil fix this...never:))
-        const response = await DeviceOrientationEvent.requestPermission();
-        if (response === "granted") {
-          window.addEventListener(
-            "deviceorientation",
-            handleOrientationForGravity
-          );
-          setGyroEnabled(true);
-        } else {
-          alert("Gyroscope permission denied.");
-        }
-      } else {
-        // For non-iOS devices or browsers that don't require permission
-        window.addEventListener(
-          "deviceorientation",
-          handleOrientationForGravity
-        );
-        setGyroEnabled(true);
-      }
-    } catch (err) {
-      console.error("Gyroscope permission error:", err);
-    }
+    await requestGyroPermission();
   };
 
   useEffect(() => {
@@ -110,7 +123,8 @@ const Experience: React.FC = () => {
       window.removeEventListener("keydown", handleLevaToggle);
       window.removeEventListener(
         "deviceorientation",
-        handleOrientationForGravity
+        handleOrientationChange,
+        true
       );
     };
   }, []);
@@ -143,7 +157,7 @@ const Experience: React.FC = () => {
             <Ball
               ref={ballRef}
               gyroEnabled={gyroEnabled && !useGyroCamera}
-              orientation={deviceOrientation.current}
+              orientation={orientation}
               leftUpRef={leftUp}
               rightUpRef={rightUp}
               forwardRef={forward}
@@ -158,8 +172,18 @@ const Experience: React.FC = () => {
       </CanvasContainer>
 
       {/* Gyroscope Enable Button */}
-      {gyroAvailable && !gyroEnabled && (
+      {!gyroEnabled && (
         <GyroButton onClick={enableGyro}>Enable Gyroscope Control</GyroButton>
+      )}
+
+      {/* Debug Info */}
+      {gyroEnabled && (
+        <DebugInfo>
+          <p>
+            Gyro: α:{orientation.alpha.toFixed(0)}° β:
+            {orientation.beta.toFixed(0)}° γ:{orientation.gamma.toFixed(0)}°
+          </p>
+        </DebugInfo>
       )}
 
       {/* Mode Toggle Button */}
@@ -254,6 +278,23 @@ const ModeButton = styled.button`
 
   &:hover {
     background: #428a42;
+  }
+`;
+
+const DebugInfo = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: monospace;
+  z-index: 1000;
+
+  p {
+    margin: 2px 0;
   }
 `;
 
