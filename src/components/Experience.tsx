@@ -7,7 +7,6 @@ import { PerformanceMonitor } from "@react-three/drei";
 import { Group } from "three";
 import Lights from "./Lights";
 import Ground from "./Grid";
-// import Shadows from "./Shadows";
 import GyroCameraController from "./GyroCamera";
 import Ball from "./Ball";
 
@@ -19,7 +18,7 @@ interface DeviceOrientationType {
 
 const gyroAvailable =
   typeof DeviceOrientationEvent !== "undefined" &&
-  //@ts-expect-error I will fix this..one day
+  //@ts-expect-error I will fix this...never most likely:))
   typeof DeviceOrientationEvent.requestPermission === "function";
 
 const Experience: React.FC = () => {
@@ -37,6 +36,7 @@ const Experience: React.FC = () => {
 
   const leftUp = useRef<boolean>(false);
   const rightUp = useRef<boolean>(false);
+  const forward = useRef<boolean>(false);
 
   const handleOrientationForGravity = (event: DeviceOrientationEvent) => {
     deviceOrientation.current = {
@@ -49,22 +49,24 @@ const Experience: React.FC = () => {
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "j" || e.key === "J") rightUp.current = true;
     if (e.key === "f" || e.key === "F") leftUp.current = true;
+    if (e.key === "w" || e.key === "W") forward.current = true;
     if (e.key === "c" || e.key === "C") setUseGyroCamera((prev) => !prev);
   };
 
   const handleKeyUp = (e: KeyboardEvent) => {
     if (e.key === "j" || e.key === "J") rightUp.current = false;
     if (e.key === "f" || e.key === "F") leftUp.current = false;
+    if (e.key === "w" || e.key === "W") forward.current = false;
   };
 
   const enableGyro = async (): Promise<void> => {
     try {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
-        //@ts-expect-error I will fix this..one day
+        //@ts-expect-error I will fix this...never most likely:))
         typeof DeviceOrientationEvent.requestPermission === "function"
       ) {
-        //@ts-expect-error I will fix this..one day
+        //@ts-expect-error I will fix this...never most likely:))
         const response = await DeviceOrientationEvent.requestPermission();
         if (response === "granted") {
           window.addEventListener(
@@ -119,6 +121,7 @@ const Experience: React.FC = () => {
             onDecline={() => setDpr(1)}
           />
 
+          {/* Your GyroCameraController integrated here */}
           <group ref={cameraGroupRef}>
             <perspectiveCamera />
           </group>
@@ -136,10 +139,10 @@ const Experience: React.FC = () => {
               orientation={deviceOrientation.current}
               leftUpRef={leftUp}
               rightUpRef={rightUp}
+              forwardRef={forward}
             />
 
             <Ground />
-            {/* <Shadows /> */}
           </group>
 
           {/* <Perf position="top-left" /> */}
@@ -181,7 +184,8 @@ const Experience: React.FC = () => {
         ) : (
           <div>
             <p>⌨️ Keyboard Controls:</p>
-            <p>F - Move Left | J - Move Right</p>
+            <p>F - Move Left | J - Move Right | W - Move Forward</p>
+            <p>L - Toggle Debug Panel</p>
             <p>C - Toggle Camera Mode</p>
           </div>
         )}
