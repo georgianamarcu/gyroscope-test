@@ -17,6 +17,7 @@ interface BallProps {
   leftUpRef: MutableRefObject<boolean>;
   rightUpRef: MutableRefObject<boolean>;
   forwardRef: MutableRefObject<boolean>;
+  shakeDetected: boolean;
 }
 
 export interface BallHandle {
@@ -24,10 +25,21 @@ export interface BallHandle {
 }
 
 const Ball = forwardRef<BallHandle, BallProps>(
-  ({ gyroEnabled, orientation, leftUpRef, rightUpRef, forwardRef }, ref) => {
+  (
+    {
+      gyroEnabled,
+      orientation,
+      leftUpRef,
+      rightUpRef,
+      forwardRef,
+      shakeDetected,
+    },
+    ref
+  ) => {
     const ballRef = useRef<Mesh>(null);
     const groupRef = useRef<Group>(null);
     const velocity = useRef(new Vector3(0, 0, 0));
+    const jumpForce = useRef(15);
 
     useImperativeHandle(ref, () => ({
       getPosition: () => ballRef.current?.position || new Vector3(0, 0.5, 0),
@@ -35,6 +47,12 @@ const Ball = forwardRef<BallHandle, BallProps>(
 
     useFrame((state, delta) => {
       if (!ballRef.current) return;
+
+      if (shakeDetected) {
+        velocity.current.y = jumpForce.current;
+      }
+
+      velocity.current.y -= 9.8 * delta;
 
       // Movement speed
       const speed = 15;
@@ -123,6 +141,9 @@ const Ball = forwardRef<BallHandle, BallProps>(
       //     Math.min(bounds, ballRef.current.position.z)
       //   );
       ballRef.current.position.y = 0.5; // Keep ball above ground
+      ballRef.current.position.add(
+        velocity.current.clone().multiplyScalar(delta)
+      );
 
       if (moved && velocity.current.length() > 0.01) {
         console.log(
