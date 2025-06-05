@@ -1,2 +1,2 @@
-# Testing the gyroscope functionality with 3js on mobile
+# Testing the phone's gyroscope functionality with 3js
 
